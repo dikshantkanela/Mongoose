@@ -11,19 +11,19 @@ mongoose.connect('mongodb://127.0.0.1:27017/farmStand',{useNewUrlParser:true,use
     console.log(err);
    })
 
-const p = new Product({
-    name: "Ruby Grapefruit",
-    price:1.99,
-    category:"fruit"
-})
+// const p = new Product({
+//     name: "Ruby Grapefruit",
+//     price:1.99,
+//     category:"fruit"
+// })
 
-p.save()
-.then((product)=>{
-   console.log(product);
-})
-.catch((err)=>{
-    console.log("ERROR!!!",err);
-})
+// p.save()
+// .then((product)=>{
+//    console.log(product);
+// })
+// .catch((err)=>{
+//     console.log("ERROR!!!",err);
+// })
 
 const products = [
   

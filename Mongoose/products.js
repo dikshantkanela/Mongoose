@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
-mongoose.connect('mongodb://127.0.0.1:27017/productApp',{useNewUrlParser:true,useUnifiedTopology:true}) //Connects mongoose with mongodb //.connect returns a Promise!
+mongcatch((err)=>{
+    console.log("OHH NO ERROR!!!");
+    console.log(err);
+   })oose.connect('mongodb://127.0.0.1:27017/productApp',{useNewUrlParser:true,useUnifiedTopology:true}) //Connects mongoose with mongodb //.connect returns a Promise!
    .then(()=>{
     console.log("CONNECTION OPEN!!");
    })
-   .catch((err)=>{
-    console.log("OHH NO ERROR!!!");
-    console.log(err);
-   })
+   .
 // DEFINING A SCHEMA : 
 const productSchema = new mongoose.Schema(
     {

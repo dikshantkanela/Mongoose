@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit product</title>
+</head>
+<body>
+    <h1>Edit a Product</h1>
+    <!-- IT WILL EDIT THE PRODUCT OF THAT ID -->
+    <form action="/products/<%= product._id %>?_method=PUT" method="post">
+        <label for="name">Enter Product : </label>
+        <input type="text" id="name" name="name" value="<%= product.name %>" placeholder="product name">
+        <label for="price">Enter Price ($) : </label>
+        <input type="number" id="price" value="<%= product.price%>" name="price">
+        <label for="category">Select Category : </label>
+        <select name="category" id="category">
+            <!-- TO MAKE THE SELECTED OPTION ALREADY SELECTED WHILE EDITING! -->
+    <%    for(let category of categories){   %>
+        <option value="<%=category%>" <%= product.category === category? 'selected' : ''  %>  ><%=category%></option> 
+   <%     }      %>
+
+        </select>
+        <button>SUBMIT</button>
+        <a href="/products/<%=product._id%>">Cancel</a>
+    </form>
+</body>
+</html>
