@@ -7,9 +7,9 @@ const path = require('path'); //for current path
 app.set('views',path.join(__dirname,'views')); //to get path of views folder
 app.set('view engine','ejs'); //run ejs
 
-app.use(express.urlencoded({extended: true})); //Middleware
+app.use(express.urlencoded({extended: true})); //Middleware TO PARSE DATA FROM FORMS
 app.use(methodOverride('_method'));
-
+const AppError = require('./AppError');
 const mongoose = require("mongoose");
 const Product = require("./Models/products")
 mongoose.connect('mongodb://127.0.0.1:27017/farmStand',{useNewUrlParser:true,useUnifiedTopology:true}) //Connects mongoose with mongodb //.connect returns a Promise!
@@ -22,15 +22,31 @@ mongoose.connect('mongodb://127.0.0.1:27017/farmStand',{useNewUrlParser:true,use
    })
 
 const categories = ["fruit","vegetable","dairy"];
+
+// #HOME : 
+app.get('/',(req,res)=>{
+    res.send("WELCOME");
+})
+
 //ROUTES :  
 //1.) To display all the products (READ)
 app.get('/products',async(req,res)=>{
-   const products = await Product.find({}); //Mongoose QUERY to get data
-   res.render("products/index.ejs",{products}) //passing the products from db to ejs template to display in the route!
+    const {category} = req.query;
+    if(category){
+        const products = await Product.find({category:category})
+        res.render("products/index.ejs",{products,category}) //passing the products from db to ejs template to display in the route!
+    }
+    else{
+        const products = await Product.find({}); //Mongoose QUERY to get data
+        res.render("products/index.ejs",{products,category:"All"})
+    }
+
 })
 
-//3.) To create a new product using a form 
+
+//3.) To create a new product using a form (just getting a form to input)
 app.get('/products/new',(req,res)=>{
+    throw new AppError("Not authorised",401);
     res.render('products/new.ejs',{categories});
 })
 
@@ -42,18 +58,23 @@ app.post('/products', async (req,res)=>{
 })
 
 //2.) To display details about a specific product
-app.get('/products/:id', async (req,res)=>{
+app.get('/products/:id', async (req,res,next)=>{
     const {id}  = req.params; //extract the product id passed in url
     const foundProduct = await Product.findById(id); //find by that id in database
-    console.log(foundProduct);  
+    if(!foundProduct){
+       return(next(new AppError("Product not found!",404)));
+    }
     res.render('products/show.ejs',{foundProduct}); 
 
 })
 // 5.) To EDIT (UPDATE) : 
 //#1 ROUTE :  
-    app.get('/products/:id/edit',async(req,res)=>{
+    app.get('/products/:id/edit',async(req,res,next)=>{
     const {id} = req.params;
     const product = await Product.findById(id);
+    if(!product){
+        return(next(new AppError("Product not found and can't be edited",404)))
+    }
     res.render('products/edit.ejs',{product,categories});
 
 //#2 ROUTE : 
@@ -72,8 +93,24 @@ app.get('/products/:id', async (req,res)=>{
         res.redirect('/products');
         console.log("DELETED ITEM : ", deleteItem);
     })
+
+
+// ERROR HANDLER : 
+app.use((err,req,res,next)=>{
+    const {status = 500, message = "Some Error occurred!"} = err;
+    res.status(status).send(message);
+
+})
+
 //SERVER LIVE : 
 
 app.listen(3000,()=>{
     console.log("SERVER IS LIVE ON LOCALHOST:3000");
 })
+
+
+// read --> 3 ways --> all, specific, by category **no form
+//create --> form to create and then a post request from the form
+//update --> form to update a specific item and then a put request from the form
+//delete --> just a simple route to delete, ONE EXTRA TASK : WRAP A DELETE BUTTON in a form that should redirect as a post (delete) 
+// CREATE, DELETE, UPDATE : res.redirect()

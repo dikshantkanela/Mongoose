@@ -33,10 +33,10 @@ const products = [
     { name: 'Carrot', price: 0.49, category: 'vegetable' }
   ];
 
-Product.insertMany(products)
-.then(res => {
-    console.log("Products Inserted:", res);
-  })
-  .catch(err => {
-    console.log("Error Inserting Products:", err);
-  });
+// Product.insertMany(products)
+// .then(res => {
+//     console.log("Products Inserted:", res);
+//   })
+//   .catch(err => {
+//     console.log("Error Inserting Products:", err);
+//   });

@@ -9,7 +9,8 @@
     <h1><%= foundProduct.name.toUpperCase() %></h1>
     <ul>
         <li>Price : $<%= foundProduct.price %></li>
-        <li>Category : <%= foundProduct.category %></li>
+        <!-- ESSENTIALLY ANOTHER GET REQUEST -->    
+        <li>Category : <a href="/products?category=<%=foundProduct.category%>"><%= foundProduct.category %></a> </li>
     </ul>
     <a href="/products">Go Back</a>
     <a href="/products/<%=foundProduct._id%>/edit">Edit</a>
