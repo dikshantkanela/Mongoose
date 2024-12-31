@@ -30,7 +30,8 @@ app.get('/',(req,res)=>{
 
 //ROUTES :  
 //1.) To display all the products (READ)
-app.get('/products',async(req,res)=>{
+app.get('/products',async(req,res,next)=>{
+    try{
     const {category} = req.query;
     if(category){
         const products = await Product.find({category:category})
@@ -39,7 +40,12 @@ app.get('/products',async(req,res)=>{
     else{
         const products = await Product.find({}); //Mongoose QUERY to get data
         res.render("products/index.ejs",{products,category:"All"})
+    } 
     }
+    catch(e){
+        next(e);
+    }
+   
 
 })
 
@@ -51,40 +57,61 @@ app.get('/products/new',(req,res)=>{
 })
 
 // 4.) For creating a product using a post req : 
-app.post('/products', async (req,res)=>{
-   const newProduct = await Product.create(req.body);
-   res.redirect(`/products/${newProduct._id}`)
-
+app.post('/products', async (req,res,next)=>{
+    try{
+        const newProduct = await Product.create(req.body);
+        res.redirect(`/products/${newProduct._id}`)
+     
+    }
+    catch(e){
+        next(e);
+    }
 })
 
 //2.) To display details about a specific product
-app.get('/products/:id', async (req,res,next)=>{
-    const {id}  = req.params; //extract the product id passed in url
-    const foundProduct = await Product.findById(id); //find by that id in database
-    if(!foundProduct){
-       return(next(new AppError("Product not found!",404)));
-    }
-    res.render('products/show.ejs',{foundProduct}); 
+const wrapAsync = (fn)=>(req,res,next)=>{
+    fn(req,res,next).catch(e=>next(e)); //this is return
+}
 
-})
+app.get('/products/:id', wrapAsync(async(req,res,next)=>{
+   
+        const {id}  = req.params; //extract the product id passed in url
+        const foundProduct = await Product.findById(id); //find by that id in database
+        if(!foundProduct){
+          throw new AppError("Product not found!",404);
+        }
+        res.render('products/show.ejs',{foundProduct}); 
+  
+}))
 // 5.) To EDIT (UPDATE) : 
 //#1 ROUTE :  
     app.get('/products/:id/edit',async(req,res,next)=>{
-    const {id} = req.params;
-    const product = await Product.findById(id);
-    if(!product){
-        return(next(new AppError("Product not found and can't be edited",404)))
-    }
-    res.render('products/edit.ejs',{product,categories});
-
-//#2 ROUTE : 
-    app.put('/products/:id',async(req,res)=>{
-        const {id} = req.params;
-        const updatedProduct = await Product.findByIdAndUpdate(id,req.body,{runValidators:true,new:true})
-        console.log(req.body); //EDITED THING
-        res.redirect(`/products/${updatedProduct._id}`) //REDIRECT AFTER UPDATING TO THE EDITED PRODUCT!
-    })
+        try{
+            const {id} = req.params;
+            const product = await Product.findById(id);
+            if(!product){
+                throw new AppError("Product not found and can't be edited",404);
+            }
+            res.render('products/edit.ejs',{product,categories});
+        }
+        catch(e){
+            next(e);
+        }
 })
+//#2 ROUTE : 
+    app.put('/products/:id',async(req,res,next)=>{
+        try{
+            const {id} = req.params;
+            const updatedProduct = await Product.findByIdAndUpdate(id,req.body,{runValidators:true,new:true})
+            console.log(req.body); //EDITED THING
+            res.redirect(`/products/${updatedProduct._id}`) //REDIRECT AFTER UPDATING TO THE EDITED PRODUCT!
+        }
+        catch(e){
+            next(e);
+        }
+        
+    })
+
 
 // 6.) DELETE : 
     app.delete('/products/:id',async(req,res)=>{
