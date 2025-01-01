@@ -123,10 +123,28 @@ app.get('/products/:id', wrapAsync(async(req,res,next)=>{
 
 
 // ERROR HANDLER : 
+
+const handleValidation = (err)=>{
+    console.dir(err);
+    return new AppError(`Product Validation failed... ${err.message}`,400);
+}
+
+// checking by name of diff errors
+app.use((err,req,res,next)=>{
+    const {name} = err;
+    console.log(name); // tells type of error like validation,casterror, (**simply Error for product not found**)
+    if(name === "ValidationError"){
+        err = handleValidation(err);
+    } 
+    console.log(err.message);
+    // res.send(name);
+    next(err);
+})
+
 app.use((err,req,res,next)=>{
     const {status = 500, message = "Some Error occurred!"} = err;
     res.status(status).send(message);
-
+   
 })
 
 //SERVER LIVE : 
