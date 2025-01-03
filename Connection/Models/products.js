@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
     },
     farm:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Farm" //two way
+        ref:'Farm' //two way
     }
 })
 const Product = mongoose.model("Product",productSchema);

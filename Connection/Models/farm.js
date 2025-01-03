@@ -15,9 +15,10 @@ const farmSchema = new mongoose.Schema({
       products:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:"Product" // two way
+            ref:'Product' // two way
         }
       ]
 })
 
 const Farm = mongoose.model("Farm",farmSchema);
+module.exports = Farm;

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farms</title>
+</head>
+<body>
+    <h1> All Farms</h1>
+    <ul>
+        <!-- displaying all farms -->
+   <%   for(let farm of farms){   %>
+    <!-- THIS HREF ESSENTIALLY SENDS A GET REQUEST TO FIND A PRDOUCT WITH ITS ID IN URL -->
+    <li> <a href="/farms/<%=farm._id%>"><%= farm.name %>  </a> </li> 
+    <%   }  %>
+    </ul>
+   
+ 
+</body>
+</html>

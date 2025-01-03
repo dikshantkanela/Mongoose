@@ -12,7 +12,7 @@ app.use(methodOverride('_method'));
 const AppError = require('./AppError');
 const mongoose = require("mongoose");
 const Product = require("./Models/products")
-mongoose.connect('mongodb://127.0.0.1:27017/farmStand',{useNewUrlParser:true,useUnifiedTopology:true}) //Connects mongoose with mongodb //.connect returns a Promise!
+mongoose.connect('mongodb://127.0.0.1:27017/farmStandTake2',{useNewUrlParser:true,useUnifiedTopology:true}) //Connects mongoose with mongodb //.connect returns a Promise!
    .then(()=>{
     console.log("MONGOOSE CONNECTION OPEN!!");
    })
@@ -21,6 +21,50 @@ mongoose.connect('mongodb://127.0.0.1:27017/farmStand',{useNewUrlParser:true,use
     console.log(err);
    })
 
+// FARMS : 
+const Farm = require("./Models/farm"); // model
+
+app.get("/farms", async(req,res)=>{
+   const farms = await Farm.find({}); // get all farms from db
+   res.render("farms/index.ejs",{farms});
+})
+
+app.get("/farms/new", (req,res)=>{
+    res.render("farms/new.ejs")
+})
+
+app.get("/farms/:id",async(req,res)=>{
+    const farm = await Farm.findById(req.params.id).populate('products'); //oye hoye har farm ke products aagye
+    res.render("farms/show.ejs",{farm});
+})
+
+app.post("/farms", async(req,res)=>{
+    const farm = new Farm(req.body);
+    await farm.save();
+    res.redirect("/farms")
+})
+
+app.get("/farms/:id/products/new",async(req,res)=>{
+    const {id} = req.params;
+    const farm = await Farm.findById(id);
+    res.render("products/new.ejs",{categories,id,farm}); //must pass the categories
+})
+
+app.post("/farms/:id/products", async(req,res)=>{
+    const {id} = req.params;
+    const {name,price,category} = req.body;
+    const farm = await Farm.findById(id);
+    const product = new Product({name,price,category});
+    farm.products.push(product);
+    product.farm = farm;
+    await product.save();
+    await farm.save();
+    res.redirect(`/farms/${id}`);
+    // console.log(farm);
+    // console.log(product);
+})
+
+// PRODUCTS : 
 const categories = ["fruit","vegetable","dairy"];
 
 // #HOME : 
@@ -76,7 +120,8 @@ const wrapAsync = (fn)=>(req,res,next)=>{
 app.get('/products/:id', wrapAsync(async(req,res,next)=>{
    
         const {id}  = req.params; //extract the product id passed in url
-        const foundProduct = await Product.findById(id); //find by that id in database
+        // oye hoye har product ka farm aagya populate krke
+        const foundProduct = await Product.findById(id).populate("farm"); //find by that id in database
         if(!foundProduct){
           throw new AppError("Product not found!",404);
         }
@@ -160,3 +205,6 @@ app.listen(3000,()=>{
 //update --> form to update a specific item and then a put request from the form
 //delete --> just a simple route to delete, ONE EXTRA TASK : WRAP A DELETE BUTTON in a form that should redirect as a post (delete) 
 // CREATE, DELETE, UPDATE : res.redirect()
+
+// /farms/farm_id/products/new
+// /farms/farm_id/products
