@@ -141,6 +141,7 @@ app.use((err,req,res,next)=>{
     next(err);
 })
 
+
 app.use((err,req,res,next)=>{
     const {status = 500, message = "Some Error occurred!"} = err;
     res.status(status).send(message);
