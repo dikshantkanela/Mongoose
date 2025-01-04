@@ -64,6 +64,14 @@ app.post("/farms/:id/products", async(req,res)=>{
     // console.log(product);
 })
 
+app.delete("/farms/:id",async(req,res)=>{
+    console.log("DELETED");
+    const {id} = req.params;
+    const farm =  await Farm.findByIdAndDelete(id);
+    res.redirect("/farms");
+
+})
+
 // PRODUCTS : 
 const categories = ["fruit","vegetable","dairy"];
 
