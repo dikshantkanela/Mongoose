@@ -26,7 +26,7 @@ farmSchema.pre('findOneAndDelete', async(data)=>{
 });
 farmSchema.post('findOneAndDelete', async(farm)=>{
    if(farm.products.length!==0){
-    await Product.deleteMany({_id:{$in:farm.products}});
+    await Product.deleteMany({_id:{$in:farm.products}}); // delete all products linked to farm 
    }
 });
 
