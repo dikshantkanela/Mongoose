@@ -12,6 +12,21 @@ app.use(methodOverride('_method'));
 const AppError = require('./AppError');
 const mongoose = require("mongoose");
 const Product = require("./Models/products")
+
+const session = require("express-session");
+const flash = require("connect-flash");
+// Configure session middleware
+app.use(session({secret: "thisisnotagoodsecret",resave: false,saveUninitialized: false,}) );
+  
+// Use flash middleware
+app.use(flash());
+// easier way for rendering a flash messages only to the views directory where messages is UTILISED!
+// messages is available on every ejs/views file!
+app.use((req,res,next)=>{
+    res.locals.messages = req.flash("success");
+    next();
+})
+
 mongoose.connect('mongodb://127.0.0.1:27017/farmStandTake2',{useNewUrlParser:true,useUnifiedTopology:true}) //Connects mongoose with mongodb //.connect returns a Promise!
    .then(()=>{
     console.log("MONGOOSE CONNECTION OPEN!!");
@@ -26,7 +41,7 @@ const Farm = require("./Models/farm"); // model
 
 app.get("/farms", async(req,res)=>{
    const farms = await Farm.find({}); // get all farms from db
-   res.render("farms/index.ejs",{farms});
+   res.render("farms/index.ejs",{farms}); //calling it in message
 })
 
 app.get("/farms/new", (req,res)=>{
@@ -41,6 +56,7 @@ app.get("/farms/:id",async(req,res)=>{
 app.post("/farms", async(req,res)=>{
     const farm = new Farm(req.body);
     await farm.save();
+    req.flash("success","Successfully made a new farm!") // to create a flash with key success
     res.redirect("/farms")
 })
 

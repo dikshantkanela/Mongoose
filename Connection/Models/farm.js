@@ -24,6 +24,7 @@ farmSchema.pre('findOneAndDelete', async(data)=>{
   console.log("PRE MIDDLEWARE");
   console.log(data)
 });
+
 farmSchema.post('findOneAndDelete', async(farm)=>{
    if(farm.products.length!==0){
     await Product.deleteMany({_id:{$in:farm.products}}); // delete all products linked to farm 
